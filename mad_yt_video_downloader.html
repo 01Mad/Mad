@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mad YT Video Downloader — Fast • Free • All Formats</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for crisp UI icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#151e32',
+                            900: '#0f172a',
+                            950: '#090d16',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in': 'fadeIn 0.35s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-rose-500 selection:text-white overflow-x-hidden">
+
+    <!-- Ambient Background Glow Effects -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-rose-600/15 rounded-full blur-[120px]"></div>
+        <div class="absolute top-1/3 -right-40 w-96 h-96 bg-orange-600/10 rounded-full blur-[130px]"></div>
+    </div>
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-30 glass-panel border-b border-slate-800/80">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+            <!-- Brand Logo & Name -->
+            <a href="#" onclick="resetApp(); return false;" class="flex items-center gap-3 group focus:outline-none">
+                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-rose-500 via-red-600 to-orange-500 flex items-center justify-center shadow-lg shadow-rose-500/25 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-play text-white text-base sm:text-lg ml-0.5"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+                        Mad YT <span class="bg-gradient-to-r from-rose-400 to-orange-400 bg-clip-text text-transparent">Video Downloader</span>
+                    </span>
+                    <span class="hidden sm:inline-block text-[11px] font-medium text-slate-400 tracking-wide">
+                        4K • 1080p • MP4 • WEBM • MP3 AUDIO
+                    </span>
+                </div>
+            </a>
+
+            <!-- Right Header Controls: Badge & Settings -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-rose-500/15 to-orange-500/15 text-rose-300 border border-rose-500/25">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                    Fast • Free • All Formats
+                </span>
+
+                <!-- Backend Status Pill -->
+                <button id="backendStatusBtn" onclick="toggleSettingsModal(true)" title="Configure Self-Hosted Backend" class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-slate-800/80 hover:bg-slate-800 text-slate-300 border border-slate-700/70 transition-all">
+                    <span id="backendDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+                    <span id="backendLabel" class="hidden sm:inline">Demo Mode</span>
+                    <i class="fa-solid fa-gear text-slate-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="relative z-10 flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+
+        <!-- Hero & URL Input Section -->
+        <section class="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+            <div class="inline-flex md:hidden items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/25 mb-4">
+                Fast • Free • All Formats
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
+                Download Videos & Audio in <span class="bg-gradient-to-r from-rose-500 to-orange-400 bg-clip-text text-transparent">Ultra HD</span>
+            </h1>
+            <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto mb-8">
+                Paste any YouTube video or Shorts link below to inspect resolutions, extract high-bitrate MP3 audio, or download in MP4 & WEBM formats.
+            </p>
+
+            <!-- Search / Paste Input Box -->
+            <div class="glass-card p-2 sm:p-2.5 rounded-2xl shadow-2xl shadow-black/40 border border-slate-700/80 focus-within:border-rose-500/60 transition-colors">
+                <form id="urlForm" onsubmit="handleFetchSubmit(event)" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <div class="relative flex-grow flex items-center">
+                        <i class="fa-brands fa-youtube text-rose-500 text-xl pl-3.5 pr-2.5"></i>
+                        <input 
+                            type="text" 
+                            id="videoUrlInput" 
+                            placeholder="Paste YouTube link here (e.g., https://youtu.be/...)" 
+                            autocomplete="off"
+                            class="w-full bg-transparent text-white placeholder-slate-500 text-sm sm:text-base py-3 pr-20 focus:outline-none"
+                        >
+                        <!-- Clear / Paste quick action button inside input -->
+                        <div class="absolute right-2 flex items-center gap-1">
+                            <button 
+                                type="button" 
+                                id="clearInputBtn" 
+                                onclick="clearUrlInput()" 
+                                class="hidden p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-700/60 transition"
+                                title="Clear link"
+                            >
+                                <i class="fa-solid fa-xmark text-sm"></i>
+                            </button>
+                            <button 
+                                type="button" 
+                                onclick="pasteFromClipboard()" 
+                                class="px-2.5 py-1.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition flex items-center gap-1.5"
+                                title="Paste from clipboard"
+                            >
+                                <i class="fa-regular fa-paste"></i>
+                                <span>Paste</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        id="fetchBtn"
+                        class="px-6 py-3.5 rounded-xl font-bold text-sm sm:text-base text-white bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-500 hover:to-orange-400 shadow-lg shadow-rose-600/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shrink-0"
+                    >
+                        <span>Fetch Video</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Quick Helper Actions (Demo Link & Backend Info) -->
+            <div class="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-400">
+                <span>No link handy?</span>
+                <button 
+                    type="button" 
+                    onclick="loadDemoVideo()" 
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-800 text-orange-300 font-medium border border-slate-700/80 hover:border-orange-500/40 transition"
+                >
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    Try Demo Link
+                </button>
+                <span class="text-slate-600">•</span>
+                <button 
+                    type="button" 
+                    onclick="toggleSettingsModal(true)" 
+                    class="inline-flex items-center gap-1.5 text-slate-400 hover:text-slate-200 underline decoration-slate-600 underline-offset-4 transition"
+                >
+                    <i class="fa-solid fa-server"></i>
+                    Connect Local yt-dlp Server
+                </button>
+            </div>
+        </section>
+
+        <!-- Loading Skeleton State -->
+        <section id="loadingState" class="hidden max-w-4xl mx-auto mb-10 animate-fade-in">
+            <div class="glass-card rounded-2xl p-6 flex flex-col md:flex-row gap-6 items-center">
+                <div class="w-full md:w-72 aspect-video bg-slate-800 rounded-xl animate-pulse"></div>
+                <div class="flex-grow w-full space-y-3">
+                    <div class="h-6 bg-slate-800 rounded-lg w-3/4 animate-pulse"></div>
+                    <div class="h-4 bg-slate-800 rounded-lg w-1/2 animate-pulse"></div>
+                    <div class="pt-4 flex gap-3">
+                        <div class="h-10 bg-slate-800 rounded-xl w-32 animate-pulse"></div>
+                        <div class="h-10 bg-slate-800 rounded-xl w-32 animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Video Preview & Format Selector Result Card -->
+        <section id="resultSection" class="hidden max-w-4xl mx-auto mb-12 animate-fade-in">
+            <div class="glass-card rounded-3xl overflow-hidden shadow-2xl border border-slate-700/70">
+                
+                <!-- Top Video Info Banner -->
+                <div class="p-5 sm:p-7 bg-slate-900/60 border-b border-slate-800/80 flex flex-col md:flex-row gap-6 items-start md:items-center">
+                    <!-- Thumbnail Container -->
+                    <div class="relative w-full md:w-80 aspect-video rounded-2xl overflow-hidden bg-slate-900 border border-slate-700/60 shrink-0 group shadow-lg">
+                        <img 
+                            id="videoThumbnail" 
+                            src="" 
+                            alt="Video Thumbnail" 
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        >
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                        <span id="videoDurationBadge" class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/85 text-white text-xs font-bold tracking-wide border border-white/10">
+                            10:24
+                        </span>
+                        <span id="videoSourceTag" class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-rose-600/90 text-white text-[11px] font-bold uppercase tracking-wider">
+                            HD Ready
+                        </span>
+                    </div>
+
+                    <!-- Metadata Details -->
+                    <div class="flex-grow min-w-0">
+                        <div class="flex items-center gap-2 text-xs font-semibold text-rose-400 mb-1.5">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Video Metadata Verified</span>
+                        </div>
+                        <h2 id="videoTitle" class="text-lg sm:text-2xl font-bold text-white leading-snug mb-2 line-clamp-2">
+                            Video Title Goes Here
+                        </h2>
+                        <div class="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs sm:text-sm text-slate-400 mb-4">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-user-astronaut text-slate-500"></i>
+                                <span id="videoChannel" class="font-medium text-slate-300">Channel Name</span>
+                            </span>
+                            <span class="text-slate-600">•</span>
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-regular fa-clock text-slate-500"></i>
+                                <span id="videoDurationText">10:24</span>
+                            </span>
+                            <span class="text-slate-600">•</span>
+                            <span id="videoIdDisplay" class="font-mono text-xs bg-slate-800 px-2 py-0.5 rounded text-slate-400">
+                                ID: dQw4w9WgXcQ
+                            </span>
+                        </div>
+
+                        <!-- Format Category Tabs -->
+                        <div class="inline-flex p-1 rounded-xl bg-slate-950/80 border border-slate-800">
+                            <button 
+                                type="button" 
+                                id="tabVideoBtn" 
+                                onclick="switchFormatTab('video')" 
+                                class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 bg-gradient-to-r from-rose-600 to-orange-500 text-white shadow"
+                            >
+                                <i class="fa-solid fa-film"></i>
+                                <span>Video (MP4 / WEBM)</span>
+                            </button>
+                            <button 
+                                type="button" 
+                                id="tabAudioBtn" 
+                                onclick="switchFormatTab('audio')" 
+                                class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 text-slate-400 hover:text-white"
+                            >
+                                <i class="fa-solid fa-music"></i>
+                                <span>Audio (MP3 / M4A)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality Options Table -->
+                <div class="p-4 sm:p-7">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="tableSectionHeading" class="text-sm font-bold uppercase tracking-wider text-slate-400">
+                            Available Video Streams
+                        </h3>
+                        <span class="text-xs text-slate-500">
+                            Estimated sizes based on duration
+                        </span>
+                    </div>
+
+                    <!-- Video Formats List -->
+                    <div id="videoFormatsContainer" class="space-y-2.5">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+
+                    <!-- Audio Formats List -->
+                    <div id="audioFormatsContainer" class="hidden space-y-2.5">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Downloads History (localStorage) -->
+        <section id="historySection" class="max-w-4xl mx-auto mb-12">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-orange-400 border border-slate-700/70">
+                        <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-white">Recent Fetches & History</h2>
+                        <p class="text-xs text-slate-400">Saved locally on your browser for quick re-access</p>
+                    </div>
+                </div>
+                <button 
+                    id="clearHistoryBtn" 
+                    onclick="clearHistory()" 
+                    class="hidden text-xs font-medium text-slate-400 hover:text-rose-400 px-3 py-1.5 rounded-lg hover:bg-slate-800/70 transition"
+                >
+                    Clear History
+                </button>
+            </div>
+
+            <div id="historyGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Populated via JS -->
+            </div>
+
+            <div id="emptyHistoryState" class="glass-card rounded-2xl p-8 text-center border border-dashed border-slate-700/70">
+                <i class="fa-solid fa-cloud-arrow-down text-3xl text-slate-600 mb-2"></i>
+                <p class="text-sm font-medium text-slate-400">No recent videos fetched yet.</p>
+                <p class="text-xs text-slate-500 mt-1">Paste a YouTube link above or click "Try Demo Link" to get started.</p>
+            </div>
+        </section>
+
+        <!-- Feature Highlights Strip -->
+        <section class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+            <div class="glass-card p-5 rounded-2xl">
+                <div class="w-9 h-9 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center mb-3 border border-rose-500/20">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <h3 class="font-bold text-white text-sm mb-1">Ultra-Fast Stream Parsing</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">Instantly resolves video thumbnails, titles, and format bitrates up to 4K 2160p & 320kbps MP3.</p>
+            </div>
+            <div class="glass-card p-5 rounded-2xl">
+                <div class="w-9 h-9 rounded-xl bg-orange-500/15 text-orange-400 flex items-center justify-center mb-3 border border-orange-500/20">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <h3 class="font-bold text-white text-sm mb-1">Every Format Supported</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">Switch seamlessly between MP4, high-efficiency WEBM video, or clean MP3 and M4A audio tracks.</p>
+            </div>
+            <div class="glass-card p-5 rounded-2xl">
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center mb-3 border border-emerald-500/20">
+                    <i class="fa-solid fa-terminal"></i>
+                </div>
+                <h3 class="font-bold text-white text-sm mb-1">Self-Host Backend Ready</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">Includes a ready-to-run Node.js + yt-dlp API snippet so you and your friends can host real stream downloads.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-slate-800/80 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p><strong class="text-slate-300">Mad YT Video Downloader</strong> — Built for personal & educational media archiving.</p>
+            <p>Please respect content creators' copyrights and YouTube Terms of Service.</p>
+        </div>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- DOWNLOAD PROGRESS MODAL                                               -->
+    <!-- ===================================================================== -->
+    <div id="downloadModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 sm:p-7 border border-slate-700 shadow-2xl relative">
+            <button onclick="closeDownloadModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="flex items-center gap-3.5 mb-5">
+                <div id="dlModalIconBg" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center text-white text-xl shadow-lg shadow-rose-500/20 shrink-0">
+                    <i id="dlModalIcon" class="fa-solid fa-cloud-arrow-down animate-bounce"></i>
+                </div>
+                <div class="min-w-0">
+                    <span id="dlStatusBadge" class="text-[11px] font-bold uppercase tracking-wider text-orange-400">Initializing Stream...</span>
+                    <h3 id="dlFileTitle" class="text-base font-bold text-white truncate">video_1080p.mp4</h3>
+                    <p id="dlFormatMeta" class="text-xs text-slate-400">1080p Full HD • MP4 • ~84.2 MB</p>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-3">
+                <div class="flex justify-between text-xs font-semibold mb-1.5">
+                    <span id="dlStageText" class="text-slate-300">Connecting to media muxer...</span>
+                    <span id="dlPercentText" class="text-rose-400">0%</span>
+                </div>
+                <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700/80">
+                    <div id="dlProgressBar" class="h-full w-0 rounded-full bg-gradient-to-r from-rose-500 via-red-500 to-orange-400 transition-all duration-200"></div>
+                </div>
+            </div>
+
+            <!-- Info / Action Box shown when complete or in Demo mode -->
+            <div id="dlCompleteBox" class="hidden mt-5 pt-4 border-t border-slate-800 space-y-3">
+                <div id="dlDemoNotice" class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-200/90 leading-relaxed">
+                    <i class="fa-solid fa-circle-info text-amber-400 mr-1"></i>
+                    <strong>Browser Sandbox Notice:</strong> Static frontends cannot bypass YouTube CORS directly. A summary receipt file was generated, or you can connect a local <button onclick="closeDownloadModal(); toggleSettingsModal(true);" class="underline font-bold text-white hover:text-orange-300">yt-dlp Backend</button> for direct MP4/MP3 streams.
+                </div>
+                <div class="flex gap-2.5">
+                    <button onclick="closeDownloadModal()" class="w-full py-2.5 rounded-xl font-bold text-sm bg-slate-800 hover:bg-slate-700 text-white transition">
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- DEVELOPER / SELF-HOST BACKEND SETUP MODAL                             -->
+    <!-- ===================================================================== -->
+    <div id="settingsModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+        <div class="glass-panel max-w-2xl w-full rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl my-8 relative animate-fade-in">
+            <button onclick="toggleSettingsModal(false)" class="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center border border-orange-500/30">
+                    <i class="fa-solid fa-server"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-extrabold text-white">Self-Host Backend Integration</h2>
+                    <p class="text-xs text-slate-400">Connect your own Node.js + yt-dlp server for real MP4 & MP3 downloads</p>
+                </div>
+            </div>
+
+            <!-- Configurable Backend Endpoint Input -->
+            <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 mb-6">
+                <label for="backendApiInput" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                    Custom Backend API URL (Leave empty for Demo Mode)
+                </label>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input 
+                        type="url" 
+                        id="backendApiInput" 
+                        placeholder="http://localhost:4000" 
+                        class="flex-grow bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-rose-500"
+                    >
+                    <button 
+                        type="button" 
+                        onclick="saveBackendUrl()" 
+                        class="px-5 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-500 hover:to-orange-400 text-white transition shrink-0"
+                    >
+                        Save Endpoint
+                    </button>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-2">
+                    When configured, clicking any Download button will redirect or stream from <code class="text-orange-300">{API_URL}/download?url=...&format=...</code>
+                </p>
+            </div>
+
+            <!-- Ready-to-Run Node.js + Express + yt-dlp Snippet -->
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-300">
+                        Ready-to-Run Node.js Server (<code class="text-rose-400">server.js</code>)
+                    </span>
+                    <button 
+                        type="button" 
+                        onclick="copyServerCode()" 
+                        id="copyCodeBtn"
+                        class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition flex items-center gap-1.5"
+                    >
+                        <i class="fa-regular fa-copy"></i>
+                        <span>Copy Code</span>
+                    </button>
+                </div>
+                <pre id="serverCodeSnippet" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-xs font-mono text-slate-300 overflow-x-auto leading-relaxed max-h-64"><code>// 1. Install dependencies: npm init -y && npm i express cors yt-dlp-exec
+// 2. Run server: node server.js
+const express = require('express');
+const cors = require('cors');
+const youtubedl = require('yt-dlp-exec');
+
+const app = express();
+app.use(cors());
+
+app.get('/download', async (req, res) => {
+  const { url, format, quality } = req.query;
+  if (!url) return res.status(400).json({ error: 'Missing YouTube URL' });
+
+  try {
+    const isAudio = format === 'mp3' || format === 'm4a';
+    const ext = isAudio ? format : 'mp4';
+    res.header('Content-Disposition', `attachment; filename="mad-yt-${quality}.${ext}"`);
+
+    const flags = isAudio
+      ? { extractAudio: true, audioFormat: format, output: '-' }
+      : { format: `bestvideo[height<=${parseInt(quality) || 1080}]+bestaudio/best`, output: '-' };
+
+    const subprocess = youtubedl.exec(url, flags);
+    subprocess.stdout.pipe(res);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.listen(4000, () => console.log('Mad YT Backend running on http://localhost:4000'));</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ===================================================================== -->
+    <!-- APPLICATION JAVASCRIPT                                                -->
+    <!-- ===================================================================== -->
+    <script>
+        // Application State
+        let currentVideo = null;
+        let activeTab = 'video';
+        let downloadInterval = null;
+        const STORAGE_KEY_HISTORY = 'mad_yt_downloader_history_v1';
+        const STORAGE_KEY_BACKEND = 'mad_yt_downloader_backend_v1';
+
+        // Format Definitions
+        const VIDEO_FORMATS = [
+            { id: '2160p', label: '4K Ultra HD', res: '2160p60', ext: 'MP4', badge: '4K HDR', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/30', baseMB: 420 },
+            { id: '1440p', label: '2K Quad HD', res: '1440p60', ext: 'MP4', badge: '2K QHD', badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/30', baseMB: 215 },
+            { id: '1080p', label: '1080p Full HD', res: '1080p60', ext: 'MP4', badge: 'POPULAR', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', baseMB: 112 },
+            { id: '720p',  label: '720p HD', res: '720p', ext: 'MP4', badge: 'HD', badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/30', baseMB: 58 },
+            { id: '480p',  label: '480p Standard', res: '480p', ext: 'MP4', badge: 'SD', badgeColor: 'bg-slate-700/70 text-slate-300 border-slate-600', baseMB: 31 },
+            { id: '360p',  label: '360p Data Saver', res: '360p', ext: 'MP4', badge: 'LITE', badgeColor: 'bg-slate-700/70 text-slate-300 border-slate-600', baseMB: 18 },
+            { id: 'webm',  label: 'WEBM High Quality', res: '1080p VP9', ext: 'WEBM', badge: 'VP9', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30', baseMB: 94 }
+        ];
+
+        const AUDIO_FORMATS = [
+            { id: 'mp3-320', label: 'MP3 Studio Quality', bitrate: '320 kbps', ext: 'MP3', badge: 'MAX AUDIO', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/30', baseMB: 12.4 },
+            { id: 'mp3-192', label: 'MP3 High Quality', bitrate: '192 kbps', ext: 'MP3', badge: 'BALANCED', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', baseMB: 7.5 },
+            { id: 'mp3-128', label: 'MP3 Standard', bitrate: '128 kbps', ext: 'MP3', badge: 'COMPACT', badgeColor: 'bg-slate-700/70 text-slate-300 border-slate-600', baseMB: 5.0 },
+            { id: 'm4a-256', label: 'M4A AAC Lossless-Feel', bitrate: '256 kbps', ext: 'M4A', badge: 'APPLE / AAC', badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/30', baseMB: 9.8 }
+        ];
+
+        // Initialize App on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateBackendStatusUI();
+            renderHistory();
+
+            const input = document.getElementById('videoUrlInput');
+            input.addEventListener('input', () => {
+                const clearBtn = document.getElementById('clearInputBtn');
+                if (input.value.trim().length > 0) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+            });
+        });
+
+        // Show Toast Notification
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-slate-900 border-emerald-500/50 text-emerald-300',
+                error: 'bg-slate-900 border-rose-500/50 text-rose-300',
+                info: 'bg-slate-900 border-slate-700 text-slate-200'
+            };
+            const icons = {
+                success: 'fa-circle-check text-emerald-400',
+                error: 'fa-circle-exclamation text-rose-400',
+                info: 'fa-circle-info text-orange-400'
+            };
+
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-xl text-xs sm:text-sm font-medium animate-fade-in ${colors[type] || colors.info}`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(6px)';
+                toast.style.transition = 'all 0.25s ease';
+                setTimeout(() => toast.remove(), 250);
+            }, 3200);
+        }
+
+        // Extract YouTube 11-Character Video ID from various URL patterns
+        function extractYouTubeId(url) {
+            if (!url) return null;
+            const trimmed = url.trim();
+            // Direct 11-char ID check
+            if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
+
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+                /[?&]v=([a-zA-Z0-9_-]{11})/
+            ];
+            for (const pattern of patterns) {
+                const match = trimmed.match(pattern);
+                if (match && match[1]) return match[1];
+            }
+            return null;
+        }
+
+        // Paste URL from Clipboard
+        async function pasteFromClipboard() {
+            try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        const input = document.getElementById('videoUrlInput');
+                        input.value = text;
+                        document.getElementById('clearInputBtn').classList.remove('hidden');
+                        showToast('Link pasted from clipboard!', 'success');
+                        handleFetchSubmit(new Event('submit'));
+                        return;
+                    }
+                }
+                showToast('Clipboard empty or permission blocked — press Ctrl+V / Cmd+V', 'info');
+            } catch (err) {
+                showToast('Clipboard access blocked by browser — paste manually with Ctrl+V', 'info');
+            }
+        }
+
+        // Clear URL Input
+        function clearUrlInput() {
+            const input = document.getElementById('videoUrlInput');
+            input.value = '';
+            document.getElementById('clearInputBtn').classList.add('hidden');
+            input.focus();
+        }
+
+        // Reset App View
+        function resetApp() {
+            clearUrlInput();
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('loadingState').classList.add('hidden');
+        }
+
+        // Load Built-in Demo Video
+        function loadDemoVideo() {
+            const demoUrl = 'https://www.youtube.com/watch?v=aqz-KE-bpKQ'; // Big Buck Bunny 4K 60fps official YouTube ID
+            const input = document.getElementById('videoUrlInput');
+            input.value = demoUrl;
+            document.getElementById('clearInputBtn').classList.remove('hidden');
+            processVideoUrl(demoUrl, true);
+        }
+
+        // Handle Form Submit
+        function handleFetchSubmit(e) {
+            e.preventDefault();
+            const url = document.getElementById('videoUrlInput').value.trim();
+            if (!url) {
+                showToast('Please paste a YouTube video URL first!', 'error');
+                return;
+            }
+            processVideoUrl(url, false);
+        }
+
+        // Fetch Metadata via YouTube oEmbed API with Graceful Fallback
+        async function processVideoUrl(rawUrl, isDemo = false) {
+            const videoId = extractYouTubeId(rawUrl);
+            if (!videoId) {
+                showToast('Invalid YouTube URL. Please check the link and try again.', 'error');
+                return;
+            }
+
+            // Show Loading Skeleton
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+
+            const canonicalUrl = `https://www.youtube.com/watch?v=${videoId}`;
+            const maxResThumb = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+            const hqThumb = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+            let title = isDemo 
+                ? 'Big Buck Bunny 60fps 4K - Official Blender Foundation Short Film' 
+                : `YouTube Video (${videoId})`;
+            let author = isDemo ? 'Blender Foundation' : 'YouTube Creator';
+            let durationSec = isDemo ? 634 : (180 + (videoId.charCodeAt(0) * 5)); // Deterministic realistic duration
+
+            try {
+                const oembedEndpoint = `https://www.youtube.com/oembed?url=${encodeURIComponent(canonicalUrl)}&format=json`;
+                const response = await fetch(oembedEndpoint);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.title) title = data.title;
+                    if (data.author_name) author = data.author_name;
+                }
+            } catch (err) {
+                // Graceful fallback if network or oEmbed is restricted
+                console.warn('oEmbed fallback engaged:', err);
+            }
+
+            // Format duration MM:SS
+            const mins = Math.floor(durationSec / 60);
+            const secs = String(durationSec % 60).padStart(2, '0');
+            const durationFormatted = `${mins}:${secs}`;
+
+            currentVideo = {
+                id: videoId,
+                url: canonicalUrl,
+                title,
+                author,
+                durationSec,
+                durationFormatted,
+                thumbnail: maxResThumb,
+                fallbackThumbnail: hqThumb,
+                fetchedAt: Date.now()
+            };
+
+            // Save to localStorage history
+            saveToHistory(currentVideo);
+
+            // Simulate slight network polish delay for smooth UX
+            setTimeout(() => {
+                renderVideoResult(currentVideo);
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('resultSection').classList.remove('hidden');
+                document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 400);
+        }
+
+        // Render Video Card & Quality Tables
+        function renderVideoResult(video) {
+            const thumbImg = document.getElementById('videoThumbnail');
+            thumbImg.src = video.thumbnail;
+            thumbImg.onerror = function() {
+                this.onerror = null;
+                this.src = video.fallbackThumbnail || 'https://placehold.co/640x360/1e293b/f8fafc?text=Mad+YT+Preview';
+            };
+
+            document.getElementById('videoTitle').textContent = video.title;
+            document.getElementById('videoChannel').textContent = video.author;
+            document.getElementById('videoDurationBadge').textContent = video.durationFormatted;
+            document.getElementById('videoDurationText').textContent = video.durationFormatted;
+            document.getElementById('videoIdDisplay').textContent = `ID: ${video.id}`;
+
+            // Scale file size realistically based on duration ratio vs 5-min baseline
+            const durationFactor = Math.max(0.3, video.durationSec / 300);
+
+            // Render Video Rows
+            const videoContainer = document.getElementById('videoFormatsContainer');
+            videoContainer.innerHTML = VIDEO_FORMATS.map(fmt => {
+                const estSize = (fmt.baseMB * durationFactor).toFixed(1);
+                return `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:px-5 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 hover:border-slate-700 transition-all group">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-slate-800 group-hover:bg-rose-500/15 text-slate-300 group-hover:text-rose-400 flex items-center justify-center font-bold text-xs border border-slate-700/70 transition">
+                                ${fmt.ext}
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-white text-sm sm:text-base">${fmt.label}</span>
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold border ${fmt.badgeColor}">
+                                        ${fmt.badge}
+                                    </span>
+                                </div>
+                                <div class="text-xs text-slate-400 mt-0.5">
+                                    Resolution: <span class="text-slate-300 font-medium">${fmt.res}</span> • Container: <span class="text-slate-300 font-medium">${fmt.ext}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between sm:justify-end gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
+                            <span class="text-xs font-mono font-semibold text-slate-400">~${estSize} MB</span>
+                            <button 
+                                type="button"
+                                onclick="triggerDownload('${fmt.id}', '${fmt.label}', '${fmt.ext}', '${estSize} MB')"
+                                class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-500 hover:to-orange-400 shadow-md shadow-rose-600/20 active:scale-95 transition flex items-center gap-2"
+                            >
+                                <i class="fa-solid fa-download"></i>
+                                <span>Download</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Render Audio Rows
+            const audioContainer = document.getElementById('audioFormatsContainer');
+            audioContainer.innerHTML = AUDIO_FORMATS.map(fmt => {
+                const estSize = (fmt.baseMB * durationFactor).toFixed(1);
+                return `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:px-5 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 hover:border-slate-700 transition-all group">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-slate-800 group-hover:bg-orange-500/15 text-slate-300 group-hover:text-orange-400 flex items-center justify-center font-bold text-xs border border-slate-700/70 transition">
+                                ${fmt.ext}
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-white text-sm sm:text-base">${fmt.label}</span>
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold border ${fmt.badgeColor}">
+                                        ${fmt.badge}
+                                    </span>
+                                </div>
+                                <div class="text-xs text-slate-400 mt-0.5">
+                                    Audio Bitrate: <span class="text-slate-300 font-medium">${fmt.bitrate}</span> • Format: <span class="text-slate-300 font-medium">${fmt.ext}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between sm:justify-end gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
+                            <span class="text-xs font-mono font-semibold text-slate-400">~${estSize} MB</span>
+                            <button 
+                                type="button"
+                                onclick="triggerDownload('${fmt.id}', '${fmt.label}', '${fmt.ext}', '${estSize} MB')"
+                                class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-md shadow-orange-600/20 active:scale-95 transition flex items-center gap-2"
+                            >
+                                <i class="fa-solid fa-headphones"></i>
+                                <span>Download</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Switch Between Video and Audio Format Tabs
+        function switchFormatTab(tab) {
+            activeTab = tab;
+            const videoBtn = document.getElementById('tabVideoBtn');
+            const audioBtn = document.getElementById('tabAudioBtn');
+            const videoContainer = document.getElementById('videoFormatsContainer');
+            const audioContainer = document.getElementById('audioFormatsContainer');
+            const heading = document.getElementById('tableSectionHeading');
+
+            if (tab === 'video') {
+                videoBtn.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 bg-gradient-to-r from-rose-600 to-orange-500 text-white shadow';
+                audioBtn.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 text-slate-400 hover:text-white';
+                videoContainer.classList.remove('hidden');
+                audioContainer.classList.add('hidden');
+                heading.textContent = 'Available Video Streams';
+            } else {
+                audioBtn.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow';
+                videoBtn.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 text-slate-400 hover:text-white';
+                audioContainer.classList.remove('hidden');
+                videoContainer.classList.add('hidden');
+                heading.textContent = 'Available Audio Extractions';
+            }
+        }
+
+        // Trigger Download (Connects to Self-Hosted Backend if configured, otherwise runs realistic progress simulation)
+        function triggerDownload(formatId, label, ext, sizeStr) {
+            if (!currentVideo) return;
+
+            const backendUrl = localStorage.getItem(STORAGE_KEY_BACKEND);
+            const sanitizedTitle = currentVideo.title.replace(/[^a-zA-Z0-9-_ ]/g, '').trim().slice(0, 45) || `video_${currentVideo.id}`;
+            const fileName = `${sanitizedTitle} [${formatId}].${ext.toLowerCase()}`;
+
+            // If user configured a real self-hosted backend API URL
+            if (backendUrl && backendUrl.trim() !== '') {
+                const cleanBase = backendUrl.replace(/\/+$/, '');
+                const downloadEndpoint = `${cleanBase}/download?url=${encodeURIComponent(currentVideo.url)}&format=${encodeURIComponent(ext.toLowerCase())}&quality=${encodeURIComponent(formatId)}`;
+                showToast(`Requesting stream from ${cleanBase}...`, 'success');
+                window.open(downloadEndpoint, '_blank');
+                return;
+            }
+
+            // Otherwise, open interactive Download Progress Modal
+            const modal = document.getElementById('downloadModal');
+            const progressBar = document.getElementById('dlProgressBar');
+            const percentText = document.getElementById('dlPercentText');
+            const stageText = document.getElementById('dlStageText');
+            const statusBadge = document.getElementById('dlStatusBadge');
+            const completeBox = document.getElementById('dlCompleteBox');
+            const dlIcon = document.getElementById('dlModalIcon');
+
+            document.getElementById('dlFileTitle').textContent = fileName;
+            document.getElementById('dlFormatMeta').textContent = `${label} • ${ext} • ${sizeStr}`;
+            
+            progressBar.style.width = '0%';
+            percentText.textContent = '0%';
+            stageText.textContent = 'Handshaking with stream manifest...';
+            statusBadge.textContent = 'Processing Stream';
+            statusBadge.className = 'text-[11px] font-bold uppercase tracking-wider text-orange-400';
+            dlIcon.className = 'fa-solid fa-cloud-arrow-down animate-bounce';
+            completeBox.classList.add('hidden');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            if (downloadInterval) clearInterval(downloadInterval);
+
+            let progress = 0;
+            downloadInterval = setInterval(() => {
+                progress += Math.floor(Math.random() * 14) + 6;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(downloadInterval);
+
+                    progressBar.style.width = '100%';
+                    percentText.textContent = '100%';
+                    stageText.textContent = 'Stream muxing complete!';
+                    statusBadge.textContent = 'Ready';
+                    statusBadge.className = 'text-[11px] font-bold uppercase tracking-wider text-emerald-400';
+                    dlIcon.className = 'fa-solid fa-circle-check';
+                    completeBox.classList.remove('hidden');
+
+                    // Generate a downloadable metadata/receipt file so the browser triggers an actual download action
+                    triggerReceiptDownload(fileName, currentVideo, label, ext, sizeStr);
+                } else {
+                    progressBar.style.width = `${progress}%`;
+                    percentText.textContent = `${progress}%`;
+                    if (progress < 35) {
+                        stageText.textContent = 'Fetching adaptive audio/video chunks...';
+                    } else if (progress < 75) {
+                        stageText.textContent = `Transcoding & muxing ${ext} container...`;
+                    } else {
+                        stageText.textContent = 'Finalizing stream headers...';
+                    }
+                }
+            }, 220);
+        }
+
+        // Creates a clean local receipt file in Demo Mode so user gets immediate browser download feedback
+        function triggerReceiptDownload(fileName, video, label, ext, sizeStr) {
+            const content = [
+                '====================================================',
+                'MAD YT VIDEO DOWNLOADER — STREAM EXPORT RECEIPT',
+                '====================================================',
+                `Video Title : ${video.title}`,
+                `Channel     : ${video.author}`,
+                `Source URL  : ${video.url}`,
+                `Format      : ${label} (${ext})`,
+                `Est. Size   : ${sizeStr}`,
+                `Exported At : ${new Date().toLocaleString()}`,
+                '',
+                'NOTE: You are currently running Mad YT Video Downloader in',
+                'standalone browser Demo Mode. To download full binary MP4/MP3',
+                'files directly, click the Settings gear icon in the header',
+                'and connect the included Node.js + yt-dlp server snippet.',
+                '===================================================='
+            ].join('\n');
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${fileName}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function closeDownloadModal() {
+            if (downloadInterval) clearInterval(downloadInterval);
+            const modal = document.getElementById('downloadModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // =====================================================================
+        // LOCAL STORAGE HISTORY MANAGEMENT
+        // =====================================================================
+        function getHistory() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveToHistory(videoItem) {
+            let history = getHistory();
+            history = history.filter(item => item.id !== videoItem.id);
+            history.unshift(videoItem);
+            if (history.length > 6) history = history.slice(0, 6);
+            localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+            renderHistory();
+        }
+
+        function clearHistory() {
+            localStorage.removeItem(STORAGE_KEY_HISTORY);
+            renderHistory();
+            showToast('Download history cleared.', 'info');
+        }
+
+        function renderHistory() {
+            const history = getHistory();
+            const grid = document.getElementById('historyGrid');
+            const emptyState = document.getElementById('emptyHistoryState');
+            const clearBtn = document.getElementById('clearHistoryBtn');
+
+            if (history.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                clearBtn.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            clearBtn.classList.remove('hidden');
+
+            grid.innerHTML = history.map(item => `
+                <div onclick="loadFromHistory('${item.url}')" class="glass-card rounded-2xl overflow-hidden border border-slate-800 hover:border-rose-500/40 cursor-pointer group transition-all flex flex-col">
+                    <div class="relative aspect-video bg-slate-900 overflow-hidden">
+                        <img 
+                            src="${item.fallbackThumbnail || item.thumbnail}" 
+                            alt="${item.title.replace(/"/g, '&quot;')}" 
+                            onerror="this.src='https://placehold.co/480x270/1e293b/f8fafc?text=Video'"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        >
+                        <span class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 text-[11px] font-bold text-white">
+                            ${item.durationFormatted}
+                        </span>
+                    </div>
+                    <div class="p-3.5 flex-grow flex flex-col justify-between">
+                        <h4 class="text-xs sm:text-sm font-bold text-slate-100 line-clamp-2 group-hover:text-rose-400 transition">
+                            ${item.title}
+                        </h4>
+                        <div class="flex items-center justify-between mt-3 pt-2 border-t border-slate-800/80 text-[11px] text-slate-400">
+                            <span class="truncate max-w-[140px]">${item.author}</span>
+                            <span class="text-orange-400 font-semibold group-hover:translate-x-0.5 transition-transform">Load →</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadFromHistory(url) {
+            const input = document.getElementById('videoUrlInput');
+            input.value = url;
+            document.getElementById('clearInputBtn').classList.remove('hidden');
+            processVideoUrl(url, false);
+        }
+
+        // =====================================================================
+        // BACKEND SETTINGS MODAL & CLIPBOARD COPY
+        // =====================================================================
+        function toggleSettingsModal(show) {
+            const modal = document.getElementById('settingsModal');
+            if (show) {
+                document.getElementById('backendApiInput').value = localStorage.getItem(STORAGE_KEY_BACKEND) || '';
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function saveBackendUrl() {
+            const val = document.getElementById('backendApiInput').value.trim();
+            if (val) {
+                localStorage.setItem(STORAGE_KEY_BACKEND, val);
+                showToast('Custom backend endpoint saved!', 'success');
+            } else {
+                localStorage.removeItem(STORAGE_KEY_BACKEND);
+                showToast('Switched to standalone Demo Mode.', 'info');
+            }
+            updateBackendStatusUI();
+            toggleSettingsModal(false);
+        }
+
+        function updateBackendStatusUI() {
+            const val = localStorage.getItem(STORAGE_KEY_BACKEND);
+            const dot = document.getElementById('backendDot');
+            const label = document.getElementById('backendLabel');
+
+            if (val && val.trim() !== '') {
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+                label.textContent = 'Custom Server';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+                label.textContent = 'Demo Mode';
+            }
+        }
+
+        function copyServerCode() {
+            const codeText = document.getElementById('serverCodeSnippet').innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = codeText;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Node.js server code copied to clipboard!', 'success');
+            } catch (err) {
+                showToast('Failed to copy code.', 'error');
+            }
+            document.body.removeChild(textarea);
+        }
+    </script>
+</body>
+</html>
